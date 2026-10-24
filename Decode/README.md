@@ -1,4 +1,3 @@
-
 # MIPS Instruction Decode (ID) Stage
 
 ## Design Scope and Assumptions
@@ -24,7 +23,7 @@ The Decode stage uses four modules to process the instruction and pass the infor
 
 ### Timing or Behavioral Summary
 
-*To be added after testing.*
+The Control module generates signals based on the instruction, while the Register File reads or writes data. Sign Extend converts the immediate value to 32 bits, and the ID/EX Latch stores the information on the rising clock edge.
 
 ## Implementation
 
@@ -35,38 +34,57 @@ The Decode stage uses four modules to process the instruction and pass the infor
 | [signExtend.v](src/signExtend.v) | Extends immediate values to 32 bits. |
 | [control.v](src/control.v) | Generates control signals. |
 | [regfile.v](src/regfile.v) | Reads and writes register values. |
-| [idExLatch.v](src/idExLatch.v) | Stores decoded information. |
-| [decode.v](src/decode.v) | Connects all four modules. |
+| [latch.v](src/latch.v) | Stores decoded information. |
+| [Decode.v](src/Decode.v) | Connects all four modules. |
+| [tb_decode.v](testbench/tb_decode.v) | Tests the complete Decode stage. |
 
 ### Implementation Notes
 
-The modules are written in Verilog and will be connected and tested using Vivado.
+The modules are written in Verilog and connected in Vivado to create the complete Decode stage.
 
 ## Verification
 
 ### Verification Strategy
 
-The Decode stage will be tested using Behavioral Simulation in Vivado to check if the outputs match the expected values.
+We tested the Decode stage using Behavioral Simulation in Vivado. The testbench goes through R-format, LW, SW, and BEQ instructions to check the different outputs.
 
 ### Testbench and Waveform
 
-*To be added after testing.*
+The first timing diagram shows the outputs of the complete Decode stage.
+
+![Decode Timing Diagram](images/decode_timingdiagram.png)
+
+The second timing diagram shows register 1 updating from 10 to 99 at around 155 ns.
+
+![Register Write Timing Diagram](images/decode_timing155ns.png)
+
+The testbench can be found [here](testbench/tb_decode.v).
 
 ### Results
 
-*To be added after testing.*
+| Test Case | Expected Result | Observed Result | Status |
+|---|---|---|---|
+| Register File | Reads and writes register values. | Register 1 updated from 10 to 99. | Pass |
+| Control | Generates the correct control signals. | Signals matched the expected values for all four instruction types. | Pass |
+| Sign Extend | Extends 16-bit values to 32 bits. | Positive and negative values were extended correctly. | Pass |
+| ID/EX Latch | Stores values on the rising clock edge. | Outputs updated with the clock. | Pass |
+| Decode Stage | Connects all modules together. | Expected outputs appeared in the timing diagram. | Pass |
 
 ## Reproduction Instructions
 
 ### Tools and Versions
 
-- **Tool:** Xilinx Vivado
+- **Tool:** Xilinx Vivado 2025.2
 - **Language:** Verilog HDL
 - **Operating System:** Windows
 
 ### Build and Run
 
-*To be added after completing the Decode stage.*
+1. Open Vivado and create an RTL project.
+2. Add the Verilog files from the `src` folder under Design Sources.
+3. Set `Decode.v` as the top design module.
+4. Add `tb_decode.v` under Simulation Sources.
+5. Run Behavioral Simulation and check the timing diagram.
 
 ## Repository Organization
 
@@ -77,12 +95,15 @@ Decode/
 │   ├── signExtend.v
 │   ├── control.v
 │   ├── regfile.v
-│   ├── idExLatch.v
-│   └── decode.v
+│   ├── latch.v
+│   └── Decode.v
 ├── testbench/
+│   └── tb_decode.v
 └── images/
+    ├── decode_timingdiagram.png
+    └── decode_timing155ns.png
 ```
 
 ## Known Issues and Future Improvements
 
-*To be updated after testing.*
+Only the first 10 registers have initial values, so reading the others before writing to them may show unknown values during simulation. More registers could be initialized in the future.
