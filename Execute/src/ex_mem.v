@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 /*
-The latch receives the results and control signals from the Execute stage,
+Latch receives the results and control signals from the Execute stage,
 stores them before passing the information to the next pipeline stage.
 */
 

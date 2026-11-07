@@ -1,21 +1,26 @@
 `timescale 1ns / 1ps
 
+
 module executeTB;
 
     reg clk;
-    reg [1:0] ctlwb_in, ctlm_in;
+    reg [1:0] ctlwb_in;
+    reg [2:0] ctlm_in;
     reg [31:0] npc, rdata1, rdata2, s_extend;
     reg [4:0] instr_2016, instr_1511;
     reg [1:0] alu_op;
     reg [5:0] funct;
     reg alusrc, regdst;
 
-    wire [1:0] ctlwb_out, ctlm_out;
+    wire [1:0] ctlwb_out;
+    wire zero;
+    wire [2:0] ctlm_out;
     wire [31:0] adder_out, alu_result_out, rdata2_out;
     wire [4:0] muxout_out;
 
     execute uut (
         .clk(clk),
+        .zero(zero),
         .ctlwb_in(ctlwb_in),
         .ctlm_in(ctlm_in),
         .npc(npc),
@@ -48,7 +53,7 @@ module executeTB;
 
         // Test 1 - add
         ctlwb_in = 2'b10;
-        ctlm_in = 2'b01;
+        ctlm_in = 3'b000;
 
         npc = 32'd100;
         rdata1 = 32'd10;
@@ -87,6 +92,59 @@ module executeTB;
         $display("Adder Result = %d", adder_out);
         $display("ALU Result = %d", $signed(alu_result_out));
         $display("MUX Result = %d", muxout_out);
+
+        // Test 3 - BEQ with equal values
+        @(negedge clk);
+
+        ctlwb_in = 2'b00;
+        ctlm_in = 3'b100;
+
+        rdata1 = 32'd10;
+        rdata2 = 32'd10;
+
+        alu_op = 2'b01;
+        alusrc = 0;
+
+        #15;
+
+        $display("Test 3: BEQ");
+        $display("ALU Result = %d", alu_result_out);
+        $display("Zero = %b", zero);
+        $display("MEM Control = %b", ctlm_out);
+
+        // Test 4 - LW memory control
+        @(negedge clk);
+
+        ctlwb_in = 2'b11;
+        ctlm_in = 3'b010;
+
+        rdata1 = 32'd10;
+        s_extend = 32'd8;
+
+        alu_op = 2'b00;
+        alusrc = 1;
+        regdst = 0;
+
+        #15;
+
+        $display("Test 4: LW");
+        $display("ALU Result = %d", alu_result_out);
+        $display("MEM Control = %b", ctlm_out);
+
+        // Test 5 - SW memory control
+        @(negedge clk);
+
+        ctlwb_in = 2'b00;
+        ctlm_in = 3'b001;
+
+        alu_op = 2'b00;
+        alusrc = 1;
+
+        #15;
+
+        $display("Test 5: SW");
+        $display("ALU Result = %d", alu_result_out);
+        $display("MEM Control = %b", ctlm_out);
 
         $finish;
     end

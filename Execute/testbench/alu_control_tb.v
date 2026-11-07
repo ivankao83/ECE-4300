@@ -1,6 +1,7 @@
 `timescale 1ns / 1ps
 module test ();
 //Wire Ports
+
 wire [2:0] select;
 //Register Declarations
 reg [1:0] alu_op;

@@ -46,6 +46,7 @@ b = 32'd3;
 control = 3'b111; // -5 < 3? Yes
 
 // Test SLT with negative B
+
 #1;
 a = 32'd5;
 b = -32'sd3;
