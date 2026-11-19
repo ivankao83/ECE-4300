@@ -1,4 +1,3 @@
-
 # MIPS Instruction Execute (EX) Stage
 
 ## Design Scope and Assumptions
@@ -21,11 +20,11 @@
 
 ## Architecture
 
-The Execute stage uses six modules to perform calculations and pass the results to the next stage.
+The Execute stage uses six modules to perform calculations and pass the results to the next stage: ALU, ALU Control, Adder, Top Mux, Bottom Mux, and EX/MEM Latch. The main Execute module connects them together.
 
 ### Timing or Behavioral Summary
 
-The ALU Control determines which operation the ALU should perform. The ALU uses the register values or immediate value to calculate the result. The Muxes select the correct inputs, while the Adder calculates an address. The EX/MEM Latch stores the results on the rising clock edge.
+The ALU Control uses ALUOp and the funct field to determine which operation the ALU should perform. The top Mux selects between the second register value and the sign-extended immediate, while the bottom Mux selects the destination register. The Adder calculates an address using NPC and the extended immediate value. The EX/MEM Latch stores the results and control signals on the rising clock edge.
 
 ## Implementation
 
@@ -43,23 +42,19 @@ The ALU Control determines which operation the ALU should perform. The ALU uses 
 
 ### Implementation Notes
 
-The modules are written in Verilog and connected in Vivado to create the complete Execute stage.
+The modules are written in Verilog and connected in Vivado to create the complete Execute stage. The ALU performs arithmetic and logical operations, while ALU Control determines which operation is needed. The Muxes select the correct values, and the EX/MEM Latch stores the results so they can be passed to the Memory stage.
 
 ## Verification
 
 ### Verification Strategy
 
-We tested the Execute stage using Behavioral Simulation in Vivado. The testbench checks ADD, SUB, BEQ, LW, and SW. We also tested the ALU and ALU Control separately to check the other operations.
+We tested the Execute stage using Behavioral Simulation in Vivado. The updated testbench checks ADD, SUB, BEQ, LW, SW, AND, OR, and SLT. We also tested the ALU and ALU Control separately to check the other operations.
 
 ### Testbench and Waveform
 
-The first timing diagram shows the Execute stage testing ADD, SUB, BEQ, LW, and SW.
+The timing diagram below shows the Execute stage testing all eight instructions: ADD, SUB, BEQ, LW, SW, AND, OR, and SLT.
 
-![Execute Stage Timing Diagram](images/execute_stage.png)
-
-The second timing diagram shows the BEQ test at 50 ns, where the ALU result is 0 and the Zero signal becomes 1.
-
-![BEQ Timing Diagram](images/execute_tb50ns.png)
+![Execute Stage Timing Diagram](images/ExecuteUpdated.png)
 
 The testbenches can be found here:
 
@@ -74,9 +69,12 @@ The testbenches can be found here:
 | ADD | Adds the selected inputs. | 10 + 4 = 14. | Pass |
 | SUB | Subtracts the selected inputs. | 10 - 20 = -10. | Pass |
 | BEQ | Sets Zero to 1 when the values are equal. | 10 - 10 = 0, Zero = 1. | Pass |
-| LW | Calculates the address and passes MemRead. | ALU result = 18, MEM = 010. | Pass |
-| SW | Calculates the address and passes MemWrite. | ALU result = 18, MEM = 001. | Pass |
-| ALU Control | Generates the correct ALU control values. | Values matched the professor's table. | Pass |
+| LW | Calculates the memory address and passes MemRead. | ALU result = 18, MEM = 010. | Pass |
+| SW | Calculates the memory address and passes MemWrite. | ALU result = 18, MEM = 001. | Pass |
+| AND | Performs a bitwise AND operation. | 10 AND 20 = 0. | Pass |
+| OR | Performs a bitwise OR operation. | 10 OR 20 = 30. | Pass |
+| SLT | Sets the result to 1 when the first value is less than the second. | 10 < 20, result = 1. | Pass |
+| ALU Control | Generates the correct ALU control values. | Values matched the expected operations. | Pass |
 | ALU | Performs arithmetic and logical operations. | ADD, SUB, AND, OR, and SLT gave the expected results. | Pass |
 | EX/MEM Latch | Stores results on the rising clock edge. | Outputs updated with the clock. | Pass |
 
@@ -94,8 +92,9 @@ The testbenches can be found here:
 2. Add the Verilog files from the `src` folder under Design Sources.
 3. Set `execute.v` as the top design module.
 4. Add `executeTB.v` under Simulation Sources.
-5. Run Behavioral Simulation and check the timing diagram.
-6. Run the separate ALU and ALU Control testbenches to check their outputs.
+5. Set `executeTB` as the simulation top.
+6. Run Behavioral Simulation and check the timing diagram for all eight tests.
+7. Run the separate ALU and ALU Control testbenches to check their outputs.
 
 ## Repository Organization
 
@@ -115,10 +114,9 @@ Execute/
 │   ├── alu_tb.v
 │   └── alu_control_tb.v
 └── images/
-    ├── execute_stage.png
-    └── execute_tb50ns.png
+    └── ExecuteUpdated.png
 ```
 
 ## Known Issues and Future Improvements
 
-The Execute stage was tested separately from Fetch and Decode. The stages still need to be connected, including passing the six-bit funct field from Decode to Execute. More testing could also be done once the full pipeline is connected.
+The Execute stage was tested separately from Fetch and Decode. The stages still need to be connected, including passing the six-bit funct field from Decode to Execute through the ID/EX Latch. More testing could also be done once the full pipeline is connected.
