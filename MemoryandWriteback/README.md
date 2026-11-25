@@ -56,7 +56,7 @@ We tested the Memory and Writeback stages separately using Behavioral Simulation
 
 ### Testbench and Waveform
 
-The first timing diagram shows the Memory stage testing MemRead, MemWrite, reading back the stored data, and Branch.
+The first timing diagram shows the Memory stage being tested.
 
 ![Memory Stage Timing Diagram](/MemoryandWriteback/images/mem_stage.PNG)
 
