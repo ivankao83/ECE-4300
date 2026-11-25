@@ -58,7 +58,7 @@ We tested the Memory and Writeback stages separately using Behavioral Simulation
 
 The first timing diagram shows the Memory stage testing MemRead, MemWrite, reading back the stored data, and Branch.
 
-![Memory Stage Timing Diagram](/MemoryandWriteback/images/mem_stage.png)
+![Memory Stage Timing Diagram](/MemoryandWriteback/images/mem_stage.PNG)
 
 The second timing diagram shows the Writeback stage selecting between the ALU result and memory data. It also shows RegWrite being disabled during the last test.
 
